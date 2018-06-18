@@ -18,7 +18,7 @@ var wss = new WebSocket.Server({
     server: server
 });
 
-console.log("started");
+console.log("Navigate to " + ip.address());
 
 app.use(compression({
     level: 5
