@@ -71,6 +71,7 @@ app.post("/blenderfile", upload.single("blenderfile"), function(req, res, next) 
                 blenderoutput("MAIN: Ffmpeg done", ws) || next();
                 console.log("rendering finished");
                 ws.send(toArrayBuffer(fs.readFileSync(tempvideoloc)));
+                tmp.setGracefulCleanup();
             });
         });
     });
