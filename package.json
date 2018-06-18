@@ -11,6 +11,9 @@
     "ws": "^5.2.0",
     "ip": "^1.1.5"
   },
+  "bin": {
+    "blender-renderer": "index.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/TheGreatRambler/node-blender-renderer"
@@ -18,7 +21,9 @@
   "keywords": [
     "node",
     "web-server",
-    "blender"
+    "blender",
+    "render",
+    "offload"
   ],
   "author": "TheGreatRambler",
   "license": "MIT"
