@@ -12,4 +12,4 @@ A blender renderer that allows you to render a blender file on a remote machine
 
 ## Running
 
-run `blender-renderer` and navigate to the returned ip address (on the same network). Upload your `.blend` file there and allow it to process.
+run `sudo blender-renderer <port>` and navigate to the returned ip address (on the same network). Upload your `.blend` file there and allow it to process.
