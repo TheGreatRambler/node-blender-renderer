@@ -26,5 +26,6 @@
     "offload"
   ],
   "author": "TheGreatRambler",
-  "license": "MIT"
+  "license": "MIT",
+  "preferGlobal": true,
 }
