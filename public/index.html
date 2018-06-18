@@ -12,10 +12,13 @@
         <input type="submit" value="Submit">
     </form>
     <table id="output">
+        <script src="filesaver.js"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script>
+            var blendfilename = "video";
             $("#fileform").submit(function(e) {
                 console.log("file recieved");
+                blendfilename = $("#blend-file")[0].files[0].name.slice(0, -6);
                 $.ajax({
                     method: "POST",
                     cache: false,
@@ -56,18 +59,21 @@
                     socket.send("");
                 };
                 socket.onmessage = function(message) {
-                    var recieveddata = JSON.parse(message.data);
-                    if (recieveddata.target === "processingoutput") {
-                        var columns = recieveddata.data.split("|");
-                        var row = output.insertRow(0);
-                        columns.forEach(function(item, index) {
-                            row.insertCell(index).innerHTML = item;
-                        });
-                        if (output.rows.length > 100) {
-                            output.deleteRow(-1);
+                    if (typeof message.data === "string") {
+                        var recieveddata = JSON.parse(message.data);
+                        if (recieveddata.target === "processingoutput") {
+                            var columns = recieveddata.data.split("|");
+                            var row = output.insertRow(0);
+                            columns.forEach(function(item, index) {
+                                row.insertCell(index).innerHTML = item;
+                            });
+                            if (output.rows.length > 100) {
+                                output.deleteRow(-1);
+                            }
                         }
                     } else {
-                        
+                        output.insertRow(0).insertCell(0).innerHTML = "MAIN: Video being downloaded";
+                        FileSaver.saveAs(new Blob([new Uint8Array(message.data)]), blendfilename + ".mp4");
                     }
                 };
             }
