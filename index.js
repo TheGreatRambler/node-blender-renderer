@@ -7,6 +7,8 @@ var upload = multer({
     dest: os.tmpdir()
 });
 var ip = require('ip');
+var tmp = require('tmp');
+var fs = require('fs');
 var serveStatic = require('serve-static');
 var path = require('path');
 var errorhandler = require('express-error-handler');
@@ -18,19 +20,30 @@ var wss = new WebSocket.Server({
     server: server
 });
 
-console.log("Navigate to " + ip.address());
+var port = Number(process.argv[2] || 80);
+
+console.log("Navigate to " + ip.address() + ":" + port);
 
 app.use(compression({
     level: 5
 }));
 
 app.use(serveStatic(directory, {
-    'index': ["index.html?ip=" + ip.address()]
+    'index': ["index.html?ip=" + ip.address() + ":" + port]
 }));
 
 app.use(errorhandler({
     server: server
 }));
+
+function toArrayBuffer(buf) {
+    var ab = new ArrayBuffer(buf.length);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buf.length; ++i) {
+        view[i] = buf[i];
+    }
+    return ab;
+}
 
 app.post("/blenderfile", upload.single("blenderfile"), function(req, res, next) {
     res.send("recieved");
@@ -40,19 +53,24 @@ app.post("/blenderfile", upload.single("blenderfile"), function(req, res, next) 
         var filepath = req.file.path;
         console.log("temp path: " + filepath);
         blenderoutput("MAIN: Started", ws) || next();
-        var output = spawn("blender", ["--background", filepath, "-o", "temp-image-files/temp_#####", "-t", "0", "-F", "PNG", "-a"]);
+        var tempimagesdir = tmp.dirSync().name;
+        var output = spawn("blender", ["--background", filepath, "-o", tempimagesdir + "/temp_#####", "-t", "0", "-F", "PNG", "-a"]);
         output.stdout.on("data", function(data) {
             blenderoutput("BLENDER: " + data, ws) || next();
         });
         output.on("close", function(code) {
             blenderoutput("MAIN: Blender done, starting ffmpeg", ws) || next();
-            var videocreation = spawn("ffmpeg", ["-framerate", "25", "-i", "temp-image-files/temp_%05d.png", "blender-video.mp4"]);
+            var tempvideoloc = tmp.tmpNameSync({
+                postfix: ".mp4"
+            });
+            var videocreation = spawn("ffmpeg", ["-i", tempimagesdir + "/temp_%05d.png", tempvideoloc]);
             videocreation.stdout.on("data", function(data) {
                 blenderoutput("FFMPEG: " + data, ws) || next();
             });
             videocreation.on("close", function(code) {
                 blenderoutput("MAIN: Ffmpeg done", ws) || next();
                 console.log("rendering finished");
+                ws.send(toArrayBuffer(fs.readFileSync(tempvideoloc)));
             });
         });
     });
@@ -71,4 +89,4 @@ function blenderoutput(data, ws) {
     }
 }
 
-server.listen(80);
+server.listen(port);
