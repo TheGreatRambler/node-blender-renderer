@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var spawn = require('child_process').spawn;
 var express = require('express');
 var WebSocket = require('ws');
