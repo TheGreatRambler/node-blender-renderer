@@ -41,7 +41,7 @@ function toArrayBuffer(buf) {
 }
 
 app.get("/", function(res, req) {
-    res.status(301).redirect("/index.html?ip=" + ip.address() + ":" + port);
+    res.redirect("/index.html?ip=" + ip.address() + ":" + port);
 });
 
 app.post("/blenderfile", upload.single("blenderfile"), function(req, res, next) {
