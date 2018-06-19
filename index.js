@@ -59,6 +59,7 @@ app.post("/blenderfile", upload.single("blenderfile"), function(req, res, next) 
             if (fs.existsSync(possiblepath)) {
                 fs.readFile(possiblepath, "base64", function(err, data) {
                     var imageoutput = "<img src='data:image/png;base64," + data + "'></img>";
+                    console.log(imageoutput);
                     blenderoutput(imageoutput + "BLENDER: " + data, ws) || next();
                 });
             } else {
