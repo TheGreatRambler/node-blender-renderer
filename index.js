@@ -3,6 +3,7 @@
 var spawn = require('child_process').spawn;
 var express = require('express');
 var WebSocket = require('ws');
+var leftPad = require('left-pad'); //MEMMMMMESSSS
 var os = require('os');
 var multer = require('multer');
 var serveStatic = require('serve-static');
@@ -47,13 +48,22 @@ app.post("/blenderfile", upload.single("blenderfile"), function(req, res, next) 
     console.log("new connection");
     wss.on("connection", function(ws) {
         console.log("ready");
+        var index = 0;
         var filepath = req.file.path;
         console.log("temp path: " + filepath);
         blenderoutput("MAIN: Started", ws) || next();
         var tempimagesdir = tmp.dirSync().name;
         var output = spawn("blender", ["--background", filepath, "-o", tempimagesdir + "/temp_#####", "-t", "0", "-F", "PNG", "-a"]);
         output.stdout.on("data", function(data) {
-            blenderoutput("BLENDER: " + data, ws) || next();
+            var possiblepath = tempimagesdir + "/temp_" + leftPad(index, 5) + ".png";
+            if (fs.existsSync(possiblepath)) {
+                fs.readFile(possiblepath, "base64", function(err, data) {
+                    var imageoutput = "<img src='data:image/png;base64," + data + "'></img>";
+                    blenderoutput(imageoutput + "BLENDER: " + data, ws) || next();
+                });
+            } else {
+                blenderoutput("BLENDER: " + data, ws) || next();
+            }
         });
         output.on("close", function(code) {
             blenderoutput("MAIN: Blender done, starting ffmpeg", ws) || next();
