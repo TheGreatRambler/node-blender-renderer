@@ -25,6 +25,12 @@ var port = Number(process.argv[2] || 80);
 
 console.log("Navigate to " + ip.address() + ":" + port);
 
+app.use(function(req, res, next) {
+    if (req.url === "/") {
+        res.redirect("/index.html?ip=" + ip.address() + ":" + port);
+    }
+});
+
 app.use(compression({
     level: 5
 }));
@@ -39,10 +45,6 @@ function toArrayBuffer(buf) {
     }
     return ab;
 }
-
-app.get("/", function(req, res) {
-    res.redirect("/index.html?ip=" + ip.address() + ":" + port);
-});
 
 app.post("/blenderfile", upload.single("blenderfile"), function(req, res, next) {
     res.send("recieved");
