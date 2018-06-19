@@ -40,7 +40,7 @@ function toArrayBuffer(buf) {
     return ab;
 }
 
-app.get("/", function(res, req) {
+app.get("/", function(req, res) {
     res.redirect("/index.html?ip=" + ip.address() + ":" + port);
 });
 
