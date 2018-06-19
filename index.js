@@ -25,17 +25,13 @@ var port = Number(process.argv[2] || 80);
 
 console.log("Navigate to " + ip.address() + ":" + port);
 
-app.use(function(req, res, next) {
-    if (req.url === "/") {
-        res.redirect("/index.html?ip=" + ip.address() + ":" + port);
-    }
-});
-
 app.use(compression({
     level: 5
 }));
 
-app.use(serveStatic(directory));
+app.use(serveStatic(directory, {
+    index: ["index.html"]
+}));
 
 function toArrayBuffer(buf) {
     var ab = new ArrayBuffer(buf.length);
