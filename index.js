@@ -5,6 +5,7 @@ var express = require('express');
 var WebSocket = require('ws');
 var os = require('os');
 var multer = require('multer');
+var serverStatic = require('serve-static');
 var upload = multer({
     dest: os.tmpdir()
 });
