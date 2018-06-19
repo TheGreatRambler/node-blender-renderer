@@ -11,9 +11,7 @@ var upload = multer({
 var ip = require('ip');
 var tmp = require('tmp');
 var fs = require('fs');
-var serveStatic = require('serve-static');
 var path = require('path');
-var errorhandler = require('express-error-handler');
 var compression = require('compression');
 var app = express();
 var server = require('http').createServer(app);
@@ -30,13 +28,7 @@ app.use(compression({
     level: 5
 }));
 
-app.use(serveStatic(directory, {
-    'index': ["index.html?ip=" + ip.address() + ":" + port]
-}));
-
-app.use(errorhandler({
-    server: server
-}));
+app.use(serveStatic(directory));
 
 function toArrayBuffer(buf) {
     var ab = new ArrayBuffer(buf.length);
@@ -46,6 +38,10 @@ function toArrayBuffer(buf) {
     }
     return ab;
 }
+
+app.get("/", function(res, req) {
+    res.status(301).redirect("/index.html?ip=" + ip.address() + ":" + port);
+});
 
 app.post("/blenderfile", upload.single("blenderfile"), function(req, res, next) {
     res.send("recieved");
